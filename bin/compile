@@ -33,6 +33,27 @@ mkdir -p $CACHE_DIR/$ARCHIVE_NAME | indent
 tar -zxvf $CACHE_DIR/$FILE_NAME -C $CACHE_DIR | indent
 mv $CACHE_DIR/$ARCHIVE_NAME/$ARCHIVE_NAME $BUILD_DIR/hugo | indent
 
+# Caddy version
+CADDY_VERSION="0.7.6"
+
+# Caddy URL ( download from GH builds )
+ARCHIVE_NAME=caddy_${CADDY_VERSION}_linux_amd64
+FILE_NAME=${ARCHIVE_NAME}.tar.gz
+CADDY_PACKAGE=https://github.com/mholt/caddy/releases/download/v${CADDY_VERSION}/${FILE_NAME}
+
+# Store the caddy package in the cache_dir ( persistent across builds )
+mkdir -p $CACHE_DIR
+if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
+  echo "\n-----> Fetching Caddy ${VERSION} binaries at ${CADDY_PACKAGE}"
+  curl $CADDY_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME | indent
+fi
+
+# Extract the binary in the working directory
+echo "\n-----> Extracting Caddy ${VERSION} binaries to ${BUILD_DIR}/vendor/caddy"
+mkdir -p $CACHE_DIR/$ARCHIVE_NAME | indent
+tar -zxvf $CACHE_DIR/$FILE_NAME -C $CACHE_DIR | indent
+mv $CACHE_DIR/$ARCHIVE_NAME/$ARCHIVE_NAME $BUILD_DIR/caddy | indent
+
 # Fetch a theme specified in the .hugotheme file
 if [ -e $BUILD_DIR/.hugotheme ]; then
   echo "\n-----> Getting the theme"
