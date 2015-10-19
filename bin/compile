@@ -37,8 +37,8 @@ mv $CACHE_DIR/$ARCHIVE_NAME/$ARCHIVE_NAME $BUILD_DIR/hugo | indent
 CADDY_VERSION="0.7.6"
 
 # Caddy URL ( download from GH builds )
-ARCHIVE_NAME=caddy_${CADDY_VERSION}_linux_amd64
-FILE_NAME=${ARCHIVE_NAME}.tar.gz
+ARCHIVE_NAME=caddy_linux_amd64.tar.gz
+FILE_NAME=caddy_linux_amd64.tar.gz
 CADDY_PACKAGE=https://github.com/mholt/caddy/releases/download/v${CADDY_VERSION}/${FILE_NAME}
 
 # Store the caddy package in the cache_dir ( persistent across builds )
