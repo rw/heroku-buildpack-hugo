@@ -1,58 +1,62 @@
 #!/bin/sh
 # bin/compile <build-dir> <cache-dir>
-set -e
+set -eu
 
 # Used to format the output based on heroku guidelines
 # https://devcenter.heroku.com/articles/buildpack-api#style
-indent() {
-  RE="s/^/       /"
-  sed $SED_FLAG "$RE"
-}
+#indent() {
+#  RE="s/^/       /"
+#  sed $hSED_FLAG "$RE"
+#}
 
 BUILD_DIR=$1
 CACHE_DIR=$2
 
-# Hugo version
-VERSION="0.14"
+function install_hugo {
+	# Hugo version
+	VERSION="0.14"
 
-# Hugo URL ( download from GH builds )
-ARCHIVE_NAME=hugo_${VERSION}_linux_amd64
-FILE_NAME=${ARCHIVE_NAME}.tar.gz
-HUGO_PACKAGE=https://github.com/spf13/hugo/releases/download/v${VERSION}/${FILE_NAME}
+	# Hugo URL ( download from GH builds )
+	ARCHIVE_NAME=hugo_${VERSION}_linux_amd64
+	FILE_NAME=${ARCHIVE_NAME}.tar.gz
+	HUGO_PACKAGE=https://github.com/spf13/hugo/releases/download/v${VERSION}/${FILE_NAME}
 
-# Store the hugo package in the cache_dir ( persistent across builds )
-mkdir -p $CACHE_DIR
-if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
-  echo "\n-----> Fetching Hugo ${VERSION} binaries at ${HUGO_PACKAGE}"
-  curl $HUGO_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME | indent
-fi
+	# Store the hugo package in the cache_dir ( persistent across builds )
+	mkdir -p $CACHE_DIR
+	if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
+	  echo "\n-----> Fetching Hugo ${VERSION} binaries at ${HUGO_PACKAGE}"
+	  curl $HUGO_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME
+	fi
 
-# Extract the binary in the working directory
-echo "\n-----> Extracting Hugo ${VERSION} binaries to ${BUILD_DIR}/vendor/hugo"
-mkdir -p $CACHE_DIR/$ARCHIVE_NAME | indent
-tar -zxvf $CACHE_DIR/$FILE_NAME -C $CACHE_DIR | indent
-mv $CACHE_DIR/$ARCHIVE_NAME/$ARCHIVE_NAME $BUILD_DIR/hugo | indent
+	# Extract the binary in the working directory
+	echo "\n-----> Extracting Hugo ${VERSION} binaries to ${BUILD_DIR}/vendor/hugo"
+	mkdir -p $BUILD_DIR/hugo_tmp
+	tar -zxvf $CACHE_DIR/${FILE_NAME} -C $BUILD_DIR/hugo_tmp
+	mv ${BUILD_DIR}/hugo_tmp/hugo_*/hugo_* $BUILD_DIR/hugo
+	rm -r ${BUILD_DIR}/hugo_tmp
+}
 
-# Caddy version
-CADDY_VERSION="0.7.6"
+function install_caddy {
+	CADDY_PACKAGE=https://github.com/mholt/caddy/releases/download/v0.7.6/caddy_linux_amd64.tar.gz
+	FILE_NAME=$(basename ${CADDY_PACKAGE})
 
-# Caddy URL ( download from GH builds )
-ARCHIVE_NAME=caddy_linux_amd64.tar.gz
-FILE_NAME=caddy_linux_amd64.tar.gz
-CADDY_PACKAGE=https://github.com/mholt/caddy/releases/download/v${CADDY_VERSION}/${FILE_NAME}
+	# Store the caddy package in the cache_dir ( persistent across builds )
+	mkdir -p $CACHE_DIR
+	if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
+	  echo "\n-----> Fetching Caddy binaries at ${CADDY_PACKAGE}"
+	  curl $CADDY_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME
+	fi
 
-# Store the caddy package in the cache_dir ( persistent across builds )
-mkdir -p $CACHE_DIR
-if ! [ -e $CACHE_DIR/$FILE_NAME ]; then
-  echo "\n-----> Fetching Caddy ${VERSION} binaries at ${CADDY_PACKAGE}"
-  curl $CADDY_PACKAGE -L -s -o $CACHE_DIR/$FILE_NAME | indent
-fi
+	# Extract the binary in the working directory
+	echo "\n-----> Extracting Caddy  binaries to ${BUILD_DIR}/vendor/caddy"
+	mkdir -p $BUILD_DIR/caddy_tmp
+	tar -zxvf $CACHE_DIR/${FILE_NAME} -C $BUILD_DIR/caddy_tmp
+	mv $BUILD_DIR/caddy_tmp/caddy $BUILD_DIR/caddy
+	rm -r $BUILD_DIR/caddy_tmp
+}
 
-# Extract the binary in the working directory
-echo "\n-----> Extracting Caddy ${VERSION} binaries to ${BUILD_DIR}/vendor/caddy"
-mkdir -p $CACHE_DIR/$ARCHIVE_NAME | indent
-tar -zxvf $CACHE_DIR/$FILE_NAME -C $CACHE_DIR | indent
-mv $CACHE_DIR/$ARCHIVE_NAME/$ARCHIVE_NAME $BUILD_DIR/caddy | indent
+install_hugo
+install_caddy
 
 # Fetch a theme specified in the .hugotheme file
 if [ -e $BUILD_DIR/.hugotheme ]; then
