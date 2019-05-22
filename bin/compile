@@ -17,7 +17,7 @@ function install_hugo {
 	VERSION="0.55.6"
 
 	# Hugo URL ( download from GH builds )
-	ARCHIVE_NAME=hugo_${VERSION}_linux_amd64
+	ARCHIVE_NAME=hugo_${VERSION}_Linux-64bit
 	FILE_NAME=${ARCHIVE_NAME}.tar.gz
 	HUGO_PACKAGE=https://github.com/spf13/hugo/releases/download/v${VERSION}/${FILE_NAME}
 
