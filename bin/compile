@@ -14,7 +14,7 @@ CACHE_DIR=$2
 
 function install_hugo {
 	# Hugo version
-	VERSION="0.14"
+	VERSION="0.55.6"
 
 	# Hugo URL ( download from GH builds )
 	ARCHIVE_NAME=hugo_${VERSION}_linux_amd64
