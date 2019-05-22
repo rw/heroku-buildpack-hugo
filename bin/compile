@@ -19,7 +19,7 @@ function install_hugo {
 	# Hugo URL ( download from GH builds )
 	ARCHIVE_NAME=hugo_${VERSION}_Linux-64bit
 	FILE_NAME=${ARCHIVE_NAME}.tar.gz
-	HUGO_PACKAGE=https://github.com/spf13/hugo/releases/download/v${VERSION}/${FILE_NAME}
+	HUGO_PACKAGE=https://github.com/gohugoio/hugo/releases/download/v${VERSION}/${FILE_NAME}
 
 	# Store the hugo package in the cache_dir ( persistent across builds )
 	mkdir -p $CACHE_DIR
